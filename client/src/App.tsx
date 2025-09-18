@@ -5,7 +5,6 @@ import AnalysisSteps from './components/AnalysisSteps';
 import ChatInterface from './components/ChatInterface';
 import NewAnalysisModal from './components/NewAnalysisModal';
 import Dashboard from './components/Dashboard';
-import DashboardPreview from './components/DashboardPreview';
 import { Analysis, AnalysisContent, ChatMessage } from './types';
 import { createInitialSteps } from './utils/analysisSteps';
 const API_BASE_URL = 'http://localhost:8501';
@@ -113,8 +112,7 @@ const App: React.FC = () => {
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const [isStartingAnalysis, setIsStartingAnalysis] = useState(false);
   const [isAnalysisRunning, setIsAnalysisRunning] = useState(false);
-  const [isPreviewMode, setIsPreviewMode] = useState(false);
-  const [isGeneratingResponse, setIsGeneratingResponse] = useState(false);
+  // const [isPreviewMode, setIsPreviewMode] = useState(false);
 
 
   // Generate unique session ID for this user session
@@ -204,24 +202,24 @@ const App: React.FC = () => {
     setIsAnalysisRunning(true);
   }, [selectedAnalysis]);
 
-  if (isPreviewMode) {
-    return (
-      <div className="min-h-screen bg-gray-100">
-        <div className="bg-white border-b border-gray-200 p-4">
-          <div className="max-w-7xl mx-auto flex items-center justify-between">
-            <h1 className="text-xl font-semibold">Dashboard Preview Mode</h1>
-            <button
-              onClick={() => setIsPreviewMode(false)}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-            >
-              Exit Preview
-            </button>
-          </div>
-        </div>
-        <DashboardPreview />
-      </div>
-    );
-  }
+  // if (isPreviewMode) {
+  //   return (
+  //     <div className="min-h-screen bg-gray-100">
+  //       <div className="bg-white border-b border-gray-200 p-4">
+  //         <div className="max-w-7xl mx-auto flex items-center justify-between">
+  //           <h1 className="text-xl font-semibold">Dashboard Preview Mode</h1>
+  //           <button
+  //             onClick={() => setIsPreviewMode(false)}
+  //             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+  //           >
+  //             Exit Preview
+  //           </button>
+  //         </div>
+  //       </div>
+  //       <DashboardPreview />
+  //     </div>
+  //   );
+  // }
   return (
     <div className="min-h-screen bg-gray-100">
       <Header />
@@ -257,9 +255,9 @@ const App: React.FC = () => {
                   url={selectedAnalysis.url}
                 />
               )}
-              <div>
+              {/* <div>
                 {JSON.stringify(selectedAnalysis)}
-              </div>
+              </div> */}
               {/* Chat Interface */}
               <ChatInterface
                 messages={chatMessages}

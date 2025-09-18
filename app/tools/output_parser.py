@@ -1,5 +1,5 @@
 from google.adk.agents.callback_context import CallbackContext
-from typing import Optional, override
+from typing import Optional
 
 from google.adk.models import LlmResponse
 from google.genai import types # For types.Content
