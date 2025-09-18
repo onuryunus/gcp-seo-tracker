@@ -31,12 +31,14 @@ seo_tracker = LlmAgent(
     description=(
         "SEO Tracker analyzes web pages to extract the most commonly used keywords "
         "and checks their compliance with SEO rules. It can also recreate content "
-        "in a way that is suitable for SEO optimization."
+        "in a way that is suitable for SEO optimization, generate high-quality images "
+        "with SEO-optimized alt texts, and improve accessibility by creating alt text "
+        "suggestions for existing web page images."
     ),
     instruction=prompt.SEO_TRACKER_PROMPT,
     tools=[
-        AgentTool(agent=content_seo_ruler_agent),
-        AgentTool(agent=seo_content_recreator_agent),
+        # AgentTool(agent=content_seo_ruler_agent),
+        # AgentTool(agent=seo_content_recreator_agent),
         AgentTool(agent=html_content_extractor_agent),
         AgentTool(agent=image_generator_agent),
     ],
