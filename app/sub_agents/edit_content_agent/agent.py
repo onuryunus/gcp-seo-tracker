@@ -4,7 +4,7 @@ from google.adk import Agent
 from app.tools.recreate_page import optimize_headings, optimize_title_tag, optimize_meta_description, optimize_paragraph_content, generate_image_alt_texts
 
 from . import prompt
-from app.tools.recreate_image import generate_custom_image
+from app.tools.recreate_image import generate_image_with_alt_text
 
 MODEL = "gemini-2.5-pro"
 load_dotenv()
@@ -18,7 +18,7 @@ image_generator_agent = Agent(
     ),
     instruction=prompt.IMAGE_GENERATOR_PROMPT,
     output_key="image_generator_output",
-    tools=[generate_custom_image]
+    tools=[generate_image_with_alt_text]
 )
 
 

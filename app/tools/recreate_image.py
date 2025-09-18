@@ -1,79 +1,75 @@
 import os
 from typing import Dict, Any
-from dotenv import load_dotenv
 import google.genai as genai
+from google.genai import Client, types
 
 from google.adk.tools.tool_context import ToolContext
 
 IMAGE_MODEL = "gemini-2.5-flash"
 
-async def generate_custom_image(
-        tool_context: ToolContext,
-        prompt: str = "",
-        output_filename: str = "custom_image.png"
-) -> Dict[str, Any]:
-    """
-    Generates a detailed image description based on a custom text prompt using Gemini API.
+MODEL = "gemini-2.5-pro"
 
-    Args:
-        tool_context: ADK tool context
-        prompt: Text prompt for image generation
-        output_filename: Name of the output image file (for reference)
+client = Client(
+    vertexai=True,
+    project=os.getenv("GOOGLE_CLOUD_PROJECT"),
+    location=os.getenv("GOOGLE_CLOUD_LOCATION"),
+)
 
-    Returns:
-        Image description results
-    """
-    if not prompt:
-        return {
-            "status": "error",
-            "message": "Prompt parameter is required for custom image generation"
-        }
-
-    # Configure Gemini API
-    api_key = os.getenv("GOOGLE_API_KEY") or os.getenv("GEMINI_API_KEY")
-
-    if not api_key:
-        return {
-            "status": "error",
-            "message": "GOOGLE_API_KEY or GEMINI_API_KEY environment variable is required"
-        }
-
+async def generate_image_with_alt_text(img_prompt: str, tool_context: ToolContext):
+    """Generates an image based on the prompt using Vertex AI and creates SEO-optimized alt text."""
     try:
-        genai.configure(api_key=api_key)
+        response = client.models.generate_images(
+            model=IMAGE_MODEL,
+            prompt=img_prompt,
+            config={"number_of_images": 1},
+        )
+        if not response.generated_images:
+            return {"status": "failed", "message": "No images were generated"}
 
-        # Use Gemini to create detailed image description
-        model = genai.GenerativeModel(IMAGE_MODEL)
+        image_bytes = response.generated_images[0].image.image_bytes
+        await tool_context.save_artifact(
+            "generated_image.png",
+            types.Part.from_bytes(data=image_bytes, mime_type="image/png"),
+        )
 
-        # Generate a detailed image description using Gemini
-        description_prompt = f"""
-        Create a detailed visual description for an image based on this prompt: "{prompt}"
+        from google.genai import Client as GeminiClient
 
-        Provide a comprehensive description that includes:
-        - Main subject and focal points
-        - Visual style and artistic approach
-        - Color palette and lighting
-        - Composition and layout
-        - Background and environment
-        - Mood and atmosphere
-        - Technical details (if applicable)
+        gemini_client = GeminiClient(
+            vertexai=True,
+            project=os.getenv("GOOGLE_CLOUD_PROJECT"),
+            location=os.getenv("GOOGLE_CLOUD_LOCATION"),
+        )
 
-        Make the description detailed enough that an artist or image generation tool could create the image accurately.
+        alt_text_prompt = f"""
+        Create a concise, SEO-optimized alt text for an image that was generated with this prompt: "{img_prompt}"
+
+        The alt text should be:
+        - Descriptive but concise (under 125 characters)
+        - SEO-friendly with relevant keywords
+        - Accessible for screen readers
+        - Professional and clear
+
+        Return only the alt text, nothing else.
         """
 
-        response = model.generate_content(description_prompt)
-        image_description = response.text
+        alt_response = gemini_client.models.generate_content(
+            model=MODEL,
+            contents=alt_text_prompt
+        )
+
+        alt_text = alt_response.candidates[0].content.parts[0].text.strip()
 
         return {
             "status": "success",
-            "message": f"Custom image description generated successfully",
-            "image_description": image_description,
-            "original_prompt": prompt,
-            "suggested_filename": output_filename,
-            "note": "This is a detailed text description for the image. You can use this description with image generation tools like DALL-E, Midjourney, or Stable Diffusion."
+            "detail": "Image generated successfully and stored in artifacts.",
+            "filename": "generated_image.png",
+            "prompt_used": img_prompt,
+            "alt_text": alt_text,
+            "seo_optimized": True
         }
-
     except Exception as e:
         return {
             "status": "error",
-            "message": f"Error during custom image description generation: {str(e)}"
+            "message": f"Error during image generation: {str(e)}"
         }
+
