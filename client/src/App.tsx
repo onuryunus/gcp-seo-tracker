@@ -69,33 +69,80 @@ export const createChatService = (): ChatService => {
           role: "user",
           parts: [{ text: message }]
         },
-        streaming: false
+        streaming: true
       };
 
-      // const response = await fetch(`${API_BASE_URL}/run`, {
-      //   method: 'POST',
-      //   headers: {
-      //     'Accept': 'text/application/json',
-      //     'Accept-Language': 'tr,tr-TR;q=0.9,en-US;q=0.8,en;q=0.7,la;q=0.6',
-      //     'Connection': 'keep-alive',
-      //     'Content-Type': 'application/json',
-      //   },
-      //   body: JSON.stringify(requestBody)
-      // });
+      const response = await fetch(`${API_BASE_URL}/run_sse`, {
+        method: 'POST',
+        headers: {
+          'Accept': 'text/event-stream',
+          'Accept-Language': 'tr,tr-TR;q=0.9,en-US;q=0.8,en;q=0.7,la;q=0.6',
+          'Connection': 'keep-alive',
+          'Content-Type': 'application/json',
+          'Cache-Control': 'no-cache',
+        },
+        body: JSON.stringify(requestBody)
+      });
 
-      // if (!response.ok) {
-      //   throw new Error(`HTTP error! status: ${response.status}`);
-      // }
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
 
-      // // Response is a list of messages, last message's content.parts.text is the response we are looking for
-      // const messages = await response.json();
-      // const lastMessage = messages[messages.length - 1];
-      // const responseText = lastMessage.content.parts[0].text;
-      
-      const response: AnalysisContent = {"status": "success", "url": "https://commencis.com", "seo_score": 89, "total_checks": 9, "passed_checks": 4, "issues": ["Meta description too long (164 characters)", "Multiple H1 tags (3 count)", "Paragraphs too short (average 13.7 words)", "commencis keyword too dense (3.7%)", "digital keyword too dense (3.38%)", "experience keyword too dense (3.22%)", "Internal links count low (1 count)"], "recommendations": ["Meta description should be at most 160 characters", "Page should have only one H1 tag", "Paragraphs should contain at least 20 words", "Keep keyword density between 1-3%", "Add at least 3 internal links"], "keywords": [{"word": "commencis", "count": 23, "percentage": 3.7}, {"word": "digital", "count": 21, "percentage": 3.38}, {"word": "experience", "count": 20, "percentage": 3.22}, {"word": "transformation", "count": 11, "percentage": 1.77}, {"word": "cloud", "count": 9, "percentage": 1.45}, {"word": "partnered", "count": 8, "percentage": 1.29}, {"word": "intelligent", "count": 6, "percentage": 0.96}, {"word": "app", "count": 6, "percentage": 0.96}, {"word": "software", "count": 6, "percentage": 0.96}, {"word": "performance", "count": 6, "percentage": 0.96}, {"word": "infrastructure", "count": 5, "percentage": 0.8}, {"word": "banking", "count": 5, "percentage": 0.8}, {"word": "enhancing", "count": 5, "percentage": 0.8}, {"word": "strategy", "count": 4, "percentage": 0.64}, {"word": "designsoftware", "count": 4, "percentage": 0.64}, {"word": "engineeringproduct", "count": 4, "percentage": 0.64}, {"word": "managementai", "count": 4, "percentage": 0.64}, {"word": "datacloud", "count": 4, "percentage": 0.64}, {"word": "financeinsurancetravel", "count": 4, "percentage": 0.64}, {"word": "airlinesretail", "count": 4, "percentage": 0.64}], "detailed_report": "SEO Technical Audit Report\n========================================\nURL: https://commencis.com\nSEO Score: 44/100\nStatus: Poor\n\n🔑 KEYWORDS ANALYSIS (MANDATORY):\n1. commencis: 23 occurrences (3.7% density) - Primary\n2. digital: 21 occurrences (3.38% density) - Secondary\n3. experience: 20 occurrences (3.22% density) - Secondary\n4. transformation: 11 occurrences (1.77% density) - Secondary\n5. cloud: 9 occurrences (1.45% density) - Secondary\n6. partnered: 8 occurrences (1.29% density) - Supporting\n7. intelligent: 6 occurrences (0.96% density) - Supporting\n8. app: 6 occurrences (0.96% density) - Supporting\n9. software: 6 occurrences (0.96% density) - Supporting\n10. performance: 6 occurrences (0.96% density) - Supporting\n11. infrastructure: 5 occurrences (0.8% density) - Supporting\n12. banking: 5 occurrences (0.8% density) - Supporting\n13. enhancing: 5 occurrences (0.8% density) - Supporting\n14. strategy: 4 occurrences (0.64% density) - Supporting\n15. designsoftware: 4 occurrences (0.64% density) - Supporting\n16. engineeringproduct: 4 occurrences (0.64% density) - Supporting\n17. managementai: 4 occurrences (0.64% density) - Supporting\n18. datacloud: 4 occurrences (0.64% density) - Supporting\n19. financeinsurancetravel: 4 occurrences (0.64% density) - Supporting\n20. airlinesretail: 4 occurrences (0.64% density) - Supporting\n\n📊 AUDIT SUMMARY:\n- Total Checks Performed: 9\n- Passed Tests: 4\n- Failed Tests: 5\n- Warnings: 0\n\n🚨 SEO ISSUES FOUND (Each as individual bullet):\n• Meta description too long (164 characters)\n• Multiple H1 tags (3 count)\n• Paragraphs too short (average 13.7 words)\n• 'commencis' keyword too dense (3.7%)\n• 'digital' keyword too dense (3.38%)\n• 'experience' keyword too dense (3.22%)\n• Internal links count low (1 count)\n\n✅ PASSED SEO TESTS (Each as individual bullet):\n• Title tag length optimal (48 characters) - Within recommended 30-60 character range\n• H1 tag contains content - Good for topical relevance\n• Images with alt text (60 out of 65) - Meets accessibility and SEO requirements\n• Content length sufficient (1239 words) - Meets minimum content requirements\n\n💡 OPTIMIZATION RECOMMENDATIONS (Prioritized):\n• HIGH PRIORITY: Write meta description (120-160 characters) including primary keyword 'commencis' and compelling CTA\n• HIGH PRIORITY: Page should have only one H1 tag\n• MEDIUM PRIORITY: Paragraphs should contain at least 20 words\n• MEDIUM PRIORITY: Keep keyword density between 1-3%\n• LOW PRIORITY: Add at least 3 internal links\n\n📝 TECHNICAL DETAILS:\n- Title: Present - 48 characters - Contains primary keyword 'commencis'\n- Meta Description: Present - 164 characters - Contains primary keyword 'commencis'\n- H1 Tags: 3 count - Issue: 3\n- H2-H6 Tags: H2(13), H3(16), H4(0), H5(0), H6(0)\n- Images: 65 total, 60 with alt text (92.3% coverage)\n- Internal Links: 1 count - Insufficient: <3\n- Content Length: 1239 words - Sufficient: 300+\n- Keyword Density: Primary 'commencis' (3.7%), Secondary 'digital' (3.38%)", "page_info": {"title": "Commence your next digital evolution - Commencis", "meta_description": "Commencis drives AI-powered digital transformation for enterprises through experience design, intelligent custom software development, and scalable cloud solutions.", "word_count": 1239, "headings_count": {"h1": 3, "h2": 13, "h3": 16, "h4": 0}, "images_total": 65, "images_with_alt": 60}}
-      onMessage(response);
-      onComplete();
-      return;
+      // Handle Server-Sent Events streaming response
+      const reader = response.body?.getReader();
+      if (!reader) {
+        throw new Error('Failed to get response reader');
+      }
+
+      const decoder = new TextDecoder();
+      let buffer = '';
+      let finalResponse = '';
+
+      try {
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split('\n');
+          buffer = lines.pop() || ''; // Keep incomplete line in buffer
+
+          for (const line of lines) {
+            if (line.startsWith('data: ')) {
+              const data = line.slice(6); // Remove 'data: ' prefix
+              if (data === '[DONE]') {
+                // End of stream
+                if (finalResponse) {
+                  onMessage(finalResponse);
+                }
+                onComplete();
+                return;
+              }
+              try {
+                const parsedData = JSON.parse(data);
+                if (parsedData.content) {
+                  // Stream chunk - accumulate the response
+                  finalResponse += parsedData.content;
+                } else if (parsedData.message) {
+                  // Complete message
+                  finalResponse = parsedData.message;
+                }
+              } catch (parseError) {
+                // If JSON parsing fails, treat as plain text
+                finalResponse += data;
+              }
+            }
+          }
+        }
+
+        // If we reach here without [DONE], send accumulated response
+        if (finalResponse) {
+          onMessage(finalResponse);
+        }
+        onComplete();
+      } finally {
+        reader.releaseLock();
+      }
     } catch (error) {
       console.error('API call failed:', error);
       onError(error instanceof Error ? error.message : 'Bir hata oluştu');
