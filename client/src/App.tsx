@@ -114,7 +114,6 @@ const App: React.FC = () => {
   const [isStartingAnalysis, setIsStartingAnalysis] = useState(false);
   const [isAnalysisRunning, setIsAnalysisRunning] = useState(false);
   const [isPreviewMode, setIsPreviewMode] = useState(false);
-  const [isGeneratingResponse, setIsGeneratingResponse] = useState(false);
 
 
   // Generate unique session ID for this user session
@@ -257,9 +256,9 @@ const App: React.FC = () => {
                   url={selectedAnalysis.url}
                 />
               )}
-              <div>
+              {/* <div>
                 {JSON.stringify(selectedAnalysis)}
-              </div>
+              </div> */}
               {/* Chat Interface */}
               <ChatInterface
                 messages={chatMessages}
