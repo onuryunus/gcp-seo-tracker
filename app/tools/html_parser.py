@@ -1,35 +1,24 @@
-# Copyright 2025 Google LLC
-# Apache 2.0
-
-"""HTML Content Extractor agent: Extracts and lists HTML tag contents from web pages"""
-
-import os
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, List
 from datetime import datetime
-from dotenv import load_dotenv
 from bs4 import BeautifulSoup, Tag
 
-from google.adk import Agent
 from google.adk.tools.tool_context import ToolContext
 
-from . import prompt
-from ...utils.web_crawler import crawl_webpage
+from app.utils.web_crawler import crawl_webpage
 
-MODEL = "gemini-2.5-pro"
-load_dotenv()
 
 
 async def extract_html_content(
-    tool_context: ToolContext,
-    url: str = ""
+        tool_context: ToolContext,
+        url: str = ""
 ) -> Dict[str, Any]:
     """
     Extracts and catalogs HTML content elements from a web page.
-    
+
     Args:
         tool_context: ADK tool context
         url: URL of the web page to analyze
-        
+
     Returns:
         Complete HTML content extraction results
     """
@@ -38,29 +27,29 @@ async def extract_html_content(
             "status": "error",
             "message": "URL parameter is required"
         }
-    
+
     try:
         crawl_data = crawl_webpage(url)
-        
+
         if 'error' in crawl_data:
             return {
                 "status": "error",
                 "message": f"Error crawling web page: {crawl_data['error']}",
                 "url": url
             }
-        
-        soup = BeautifulSoup(crawl_data['html_content'], 'html.parser')        
 
-        headings = extract_heading_elements(soup)        
+        soup = BeautifulSoup(crawl_data['html_content'], 'html.parser')
 
-        paragraphs = extract_paragraph_elements(soup)        
+        headings = extract_heading_elements(soup)
+
+        paragraphs = extract_paragraph_elements(soup)
 
         divisions = extract_div_elements(soup)
-        
+
         summary = generate_extraction_summary(headings, paragraphs, divisions)
-        
+
         detailed_report = generate_detailed_report(url, headings, paragraphs, divisions, summary)
-        
+
         result = {
             "status": "success",
             "url": url,
@@ -81,9 +70,9 @@ async def extract_html_content(
                 len(divisions)
             ])
         }
-        
+
         return result
-        
+
     except Exception as e:
         return {
             "status": "error",
@@ -93,18 +82,18 @@ async def extract_html_content(
 
 
 async def extract_specific_tags(
-    tool_context: ToolContext,
-    url: str = "",
-    tag_types: str = "h1,h2,h3,p"
+        tool_context: ToolContext,
+        url: str = "",
+        tag_types: str = "h1,h2,h3,p"
 ) -> Dict[str, Any]:
     """
     Extracts content from specific HTML tag types only.
-    
+
     Args:
         tool_context: ADK tool context
         url: URL of the web page to analyze
         tag_types: Comma-separated list of tag types to extract (e.g., "h1,h2,p,div")
-        
+
     Returns:
         Filtered HTML content extraction results
     """
@@ -113,23 +102,23 @@ async def extract_specific_tags(
             "status": "error",
             "message": "URL parameter is required"
         }
-    
+
     try:
         requested_tags = [tag.strip().lower() for tag in tag_types.split(",")]
-        
+
         crawl_data = crawl_webpage(url)
-        
+
         if 'error' in crawl_data:
             return {
                 "status": "error",
                 "message": f"Error crawling web page: {crawl_data['error']}",
                 "url": url
             }
-        
+
         soup = BeautifulSoup(crawl_data['html_content'], 'html.parser')
-        
+
         extracted_content = {}
-        
+
         for tag_type in requested_tags:
             if tag_type in ['h1', 'h2', 'h3', 'h4', 'h5', 'h6']:
                 if 'headings' not in extracted_content:
@@ -139,14 +128,14 @@ async def extract_specific_tags(
                 extracted_content['paragraphs'] = extract_paragraph_elements(soup)
             elif tag_type == 'div':
                 extracted_content['divisions'] = extract_div_elements(soup)
-        
+
         total_elements = 0
         for category, content in extracted_content.items():
             if isinstance(content, dict):
                 total_elements += sum(len(items) for items in content.values())
             elif isinstance(content, list):
                 total_elements += len(content)
-        
+
         result = {
             "status": "success",
             "url": url,
@@ -156,9 +145,9 @@ async def extract_specific_tags(
             "total_elements": total_elements,
             "summary": f"Extracted {total_elements} elements from {len(requested_tags)} tag types"
         }
-        
+
         return result
-        
+
     except Exception as e:
         return {
             "status": "error",
@@ -170,13 +159,13 @@ async def extract_specific_tags(
 def extract_heading_elements(soup: BeautifulSoup) -> Dict[str, List[Dict[str, Any]]]:
     """Extract all heading elements (H1-H6) with their content and attributes."""
     headings = {}
-    
+
     for level in range(1, 7):
         tag_name = f'h{level}'
         heading_tags = soup.find_all(tag_name)
-        
+
         headings[tag_name] = []
-        
+
         for i, tag in enumerate(heading_tags, 1):
             heading_info = {
                 "index": i,
@@ -189,7 +178,7 @@ def extract_heading_elements(soup: BeautifulSoup) -> Dict[str, List[Dict[str, An
                 "parent_tag": tag.parent.name if tag.parent else None
             }
             headings[tag_name].append(heading_info)
-    
+
     return headings
 
 
@@ -197,7 +186,7 @@ def extract_paragraph_elements(soup: BeautifulSoup) -> List[Dict[str, Any]]:
     """Extract all paragraph elements with their content and attributes."""
     paragraph_tags = soup.find_all('p')
     paragraphs = []
-    
+
     for i, tag in enumerate(paragraph_tags, 1):
         paragraph_info = {
             "index": i,
@@ -212,7 +201,7 @@ def extract_paragraph_elements(soup: BeautifulSoup) -> List[Dict[str, Any]]:
             "is_empty": len(tag.get_text().strip()) == 0
         }
         paragraphs.append(paragraph_info)
-    
+
     return paragraphs
 
 
@@ -220,15 +209,15 @@ def extract_div_elements(soup: BeautifulSoup) -> List[Dict[str, Any]]:
     """Extract all div elements with their content and structural information."""
     div_tags = soup.find_all('div')
     divisions = []
-    
+
     for i, tag in enumerate(div_tags, 1):
         full_content = tag.get_text().strip()
         content_preview = full_content[:100] + "..." if len(full_content) > 100 else full_content
-        
+
         # Get child element types
         child_elements = [child.name for child in tag.find_all() if child.name]
         unique_child_types = list(set(child_elements))
-        
+
         division_info = {
             "index": i,
             "content_preview": content_preview,
@@ -244,7 +233,7 @@ def extract_div_elements(soup: BeautifulSoup) -> List[Dict[str, Any]]:
             "is_empty": len(full_content) == 0
         }
         divisions.append(division_info)
-    
+
     return divisions
 
 
@@ -252,7 +241,7 @@ def extract_specific_heading(soup: BeautifulSoup, tag_name: str) -> List[Dict[st
     """Extract specific heading type (h1, h2, etc.) with detailed information."""
     heading_tags = soup.find_all(tag_name)
     headings = []
-    
+
     for i, tag in enumerate(heading_tags, 1):
         heading_info = {
             "index": i,
@@ -264,7 +253,7 @@ def extract_specific_heading(soup: BeautifulSoup, tag_name: str) -> List[Dict[st
             "parent_tag": tag.parent.name if tag.parent else None
         }
         headings.append(heading_info)
-    
+
     return headings
 
 
@@ -289,33 +278,33 @@ def get_nesting_depth(tag: Tag) -> int:
 
 
 def generate_extraction_summary(
-    headings: Dict[str, List[Dict[str, Any]]], 
-    paragraphs: List[Dict[str, Any]], 
-    divisions: List[Dict[str, Any]]
+        headings: Dict[str, List[Dict[str, Any]]],
+        paragraphs: List[Dict[str, Any]],
+        divisions: List[Dict[str, Any]]
 ) -> Dict[str, Any]:
     """Generate comprehensive summary of extracted content."""
 
     heading_counts = {tag: len(items) for tag, items in headings.items()}
-    
+
     total_paragraph_words = sum(p.get('word_count', 0) for p in paragraphs)
     avg_paragraph_length = total_paragraph_words / len(paragraphs) if paragraphs else 0
-    
+
     max_nesting_level = max((d.get('nesting_level', 0) for d in divisions), default=0)
-    
+
     all_classes = []
     for p in paragraphs:
         classes = p.get('attributes', {}).get('class', [])
         if isinstance(classes, list):
             all_classes.extend(classes)
-    
+
     for d in divisions:
         classes = d.get('attributes', {}).get('class', [])
         if isinstance(classes, list):
             all_classes.extend(classes)
-    
+
     from collections import Counter
     common_classes = Counter(all_classes).most_common(5)
-    
+
     summary = {
         "heading_counts": heading_counts,
         "total_headings": sum(heading_counts.values()),
@@ -327,16 +316,16 @@ def generate_extraction_summary(
         "content_density": "high" if total_paragraph_words > 1000 else "medium" if total_paragraph_words > 300 else "low",
         "structural_complexity": "high" if max_nesting_level > 5 else "medium" if max_nesting_level > 2 else "low"
     }
-    
+
     return summary
 
 
 def generate_detailed_report(
-    url: str,
-    headings: Dict[str, List[Dict[str, Any]]], 
-    paragraphs: List[Dict[str, Any]], 
-    divisions: List[Dict[str, Any]],
-    summary: Dict[str, Any]
+        url: str,
+        headings: Dict[str, List[Dict[str, Any]]],
+        paragraphs: List[Dict[str, Any]],
+        divisions: List[Dict[str, Any]],
+        summary: Dict[str, Any]
 ) -> str:
     """Generate a detailed text report of the extraction results."""
     report = []
@@ -344,24 +333,26 @@ def generate_detailed_report(
     report.append("=" * 40)
     report.append(f"URL: {url}")
     report.append(f"Extraction Date: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-    report.append(f"Total Elements Extracted: {summary['total_headings'] + summary['total_paragraphs'] + summary['total_divisions']}")
+    report.append(
+        f"Total Elements Extracted: {summary['total_headings'] + summary['total_paragraphs'] + summary['total_divisions']}")
     report.append("")
-    
+
     report.append("📋 HEADING ELEMENTS (H1-H6):")
     for tag_name, items in headings.items():
         if items:
             report.append(f"{tag_name.upper()} Elements ({len(items)} found):")
-            for item in items[:3]:  
-                report.append(f"  {item['index']}. Content: \"{item['content'][:50]}{'...' if len(item['content']) > 50 else ''}\"")
+            for item in items[:3]:
+                report.append(
+                    f"  {item['index']}. Content: \"{item['content'][:50]}{'...' if len(item['content']) > 50 else ''}\"")
                 if item['attributes']:
                     report.append(f"     Attributes: {item['attributes']}")
                 report.append(f"     Position: {item['position']}, Depth: {item['depth_level']}")
             if len(items) > 3:
                 report.append(f"     ... and {len(items) - 3} more")
             report.append("")
-    
+
     report.append("📝 PARAGRAPH ELEMENTS (P):")
-    for i, para in enumerate(paragraphs[:5], 1):  
+    for i, para in enumerate(paragraphs[:5], 1):
         content_preview = para['content'][:80] + "..." if len(para['content']) > 80 else para['content']
         report.append(f"Paragraph {i}:")
         report.append(f"  Content: \"{content_preview}\"")
@@ -370,13 +361,13 @@ def generate_detailed_report(
             report.append(f"  Attributes: {para['attributes']}")
         report.append(f"  Position: {para['position']}, Parent: {para['parent_tag']}")
         report.append("")
-    
+
     if len(paragraphs) > 5:
         report.append(f"... and {len(paragraphs) - 5} more paragraphs")
         report.append("")
-    
+
     report.append("📦 DIVISION ELEMENTS (DIV):")
-    for i, div in enumerate(divisions[:5], 1):  
+    for i, div in enumerate(divisions[:5], 1):
         report.append(f"Division {i}:")
         report.append(f"  Content Preview: \"{div['content_preview']}\"")
         report.append(f"  Full Content Length: {div['full_content_length']} characters")
@@ -385,11 +376,11 @@ def generate_detailed_report(
         report.append(f"  Child Elements: {div['child_elements']}")
         report.append(f"  Position: {div['position']}, Nesting Level: {div['nesting_level']}")
         report.append("")
-    
+
     if len(divisions) > 5:
         report.append(f"... and {len(divisions) - 5} more divisions")
         report.append("")
-    
+
     report.append("📊 EXTRACTION SUMMARY:")
     for tag, count in summary['heading_counts'].items():
         report.append(f"- Total {tag.upper()} Tags: {count}")
@@ -400,7 +391,7 @@ def generate_detailed_report(
     report.append(f"- Content Density: {summary['content_density']}")
     report.append(f"- Structural Complexity: {summary['structural_complexity']}")
     report.append("")
-    
+
     report.append("🔍 CONTENT ANALYSIS:")
     if summary['most_common_classes']:
         report.append("- Most Common Classes:")
@@ -408,18 +399,5 @@ def generate_detailed_report(
             report.append(f"  • {cls_info['class']}: {cls_info['count']} occurrences")
     else:
         report.append("- No common CSS classes found")
-    
+
     return "\n".join(report)
-
-
-html_content_extractor_agent = Agent(
-    model=MODEL,
-    name="html_content_extractor_agent",
-    description=(
-        "Extracts and catalogs HTML content elements from web pages. "
-        "Specializes in extracting H1-H6 headings, paragraphs, and div elements with detailed structural analysis."
-    ),
-    instruction=prompt.HTML_CONTENT_EXTRACTOR_PROMPT,
-    output_key="html_content_extractor_output",
-    tools=[extract_html_content, extract_specific_tags]
-)

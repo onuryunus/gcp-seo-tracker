@@ -1,34 +1,22 @@
-# Copyright 2025 Google LLC
-# Apache 2.0
-
-"""ContentSEORuler agent: Crawls web pages and checks SEO rules compliance"""
-
-import os
 from typing import Dict, Any
-from dotenv import load_dotenv
-
-from google.adk import Agent
+import json
 from google.adk.tools.tool_context import ToolContext
 
-from . import prompt
-from ...utils.web_crawler import crawl_webpage
-from ...utils.seo_analyzer import SEOAnalyzer
-
-MODEL = "gemini-2.5-pro"
-load_dotenv()
-
+from app.utils.web_crawler import crawl_webpage
+from app.utils.seo_analyzer import SEOAnalyzer
+from app.tools.memory import memorize
 
 async def analyze_webpage_seo(
-    tool_context: ToolContext,
-    url: str = ""
+        tool_context: ToolContext,
+        url: str = ""
 ) -> Dict[str, Any]:
     """
     Crawls a web page and checks its SEO compliance.
-    
+
     Args:
         tool_context: ADK tool context
         url: URL of the web page to analyze
-        
+
     Returns:
         SEO analysis results
     """
@@ -37,22 +25,22 @@ async def analyze_webpage_seo(
             "status": "error",
             "message": "URL parameter is required"
         }
-    
+
     try:
         crawl_data = crawl_webpage(url)
-        
+
         if 'error' in crawl_data:
             return {
                 "status": "error",
                 "message": f"Error crawling web page: {crawl_data['error']}",
                 "url": url
             }
-        
+
         seo_analyzer = SEOAnalyzer()
         seo_analysis = seo_analyzer.analyze_seo(crawl_data)
-        
+
         detailed_report = seo_analyzer.generate_seo_report_with_keywords(seo_analysis, crawl_data.get('keywords', []))
-        
+
         result = {
             "status": "success",
             "url": url,
@@ -77,9 +65,15 @@ async def analyze_webpage_seo(
                 "images_with_alt": sum(1 for img in crawl_data.get('images', []) if img.get('alt', '').strip())
             }
         }
-        
+
+        safe_result = sanitize_detailed_report(result)
+        print(safe_result["detailed_report"])  # no double quotes inside
+
+        print("SEO JSON IS SAVED: ", json.dumps(safe_result))
+        memorize(tool_context=tool_context, key=r"seo_analyze_json_result", value=json.dumps(safe_result, ensure_ascii=False))
+
         return result
-        
+
     except Exception as e:
         return {
             "status": "error",
@@ -87,20 +81,31 @@ async def analyze_webpage_seo(
             "url": url
         }
 
+def sanitize_detailed_report(result: dict) -> dict:
+    """
+    Return a copy of the result dict where all double quotes in detailed_report
+    are replaced with single quotes. Leaves other fields untouched.
+    """
+    sanitized = dict(result)  # shallow copy
+    report = sanitized.get("detailed_report")
+    if isinstance(report, str):
+        sanitized["detailed_report"] = report.replace('"', "'")
+    return sanitized
+
 
 async def extract_page_keywords(
-    tool_context: ToolContext,
-    url: str = "",
-    keyword_count: int = 20
+        tool_context: ToolContext,
+        url: str = "",
+        keyword_count: int = 20
 ) -> Dict[str, Any]:
     """
     Extracts keywords from a web page.
-    
+
     Args:
         tool_context: ADK tool context
         url: URL of the web page to analyze
         keyword_count: Number of keywords to extract
-        
+
     Returns:
         List of keywords
     """
@@ -109,19 +114,19 @@ async def extract_page_keywords(
             "status": "error",
             "message": "URL parameter is required"
         }
-    
+
     try:
         crawl_data = crawl_webpage(url)
-        
+
         if 'error' in crawl_data:
             return {
                 "status": "error",
                 "message": f"Error crawling web page: {crawl_data['error']}",
                 "url": url
             }
-        
+
         keywords = crawl_data.get('keywords', [])[:keyword_count]
-        
+
         return {
             "status": "success",
             "url": url,
@@ -130,23 +135,10 @@ async def extract_page_keywords(
             "page_title": crawl_data.get('title', ''),
             "keyword_summary": f"{len(keywords)} keywords extracted"
         }
-        
+
     except Exception as e:
         return {
             "status": "error",
             "message": f"Error during keyword extraction: {str(e)}",
             "url": url
         }
-
-
-content_seo_ruler_agent = Agent(
-    model=MODEL,
-    name="content_seo_ruler_agent",
-    description=(
-        "Crawls web pages and checks their SEO compliance. "
-        "Extracts most frequently used keywords and performs detailed SEO analysis."
-    ),
-    instruction=prompt.CONTENT_SEO_RULER_PROMPT,
-    output_key="content_seo_ruler_output",
-    tools=[analyze_webpage_seo, extract_page_keywords]
-)
