@@ -11,13 +11,46 @@ playground:
 	@echo "|                                                                             |"
 	@echo "| 🔍 IMPORTANT: Select the 'app' folder to interact with your agent.          |"
 	@echo "==============================================================================="
-	uv run adk web . --port 8501 --reload_agents
+	uv run adk web . --port 8501 --reload_agents --allow_origins="*"
 
 # Deploy the agent remotely
 backend:
 	# Export dependencies to requirements file using uv export.
 	uv export --no-hashes --no-header --no-dev --no-emit-project --no-annotate > .requirements.txt 2>/dev/null || \
 	uv export --no-hashes --no-header --no-dev --no-emit-project > .requirements.txt && uv run app/agent_engine_app.py
+
+# Install client dependencies
+install-client:
+	cd client && npm install --legacy-peer-deps
+
+# Start the custom FastAPI server
+server:
+	@echo "==============================================================================="
+	@echo "| 🚀 Starting PubTender API Server...                                         |"
+	@echo "|                                                                             |"
+	@echo "| 🌐 Server will be available at: http://localhost:8000                       |"
+	@echo "| 📡 WebSocket endpoint: ws://localhost:8000/ws/{user_id}                     |"
+	@echo "==============================================================================="
+	cd server && python3 main.py
+
+# Start the React client
+client:
+	@echo "==============================================================================="
+	@echo "| 🚀 Starting PubTender Client...                                             |"
+	@echo "|                                                                             |"
+	@echo "| 🌐 Client will be available at: http://localhost:3000                       |"
+	@echo "==============================================================================="
+	cd client && npm run dev
+
+# Start both client and server in parallel
+dev:
+	@echo "==============================================================================="
+	@echo "| 🚀 Starting PubTender Full Stack Application...                             |"
+	@echo "|                                                                             |"
+	@echo "| 🖥️  Frontend: http://localhost:3000                                          |"
+	@echo "| 🔧 Backend:  http://localhost:8000                                          |"
+	@echo "==============================================================================="
+	@make -j2 server client
 
 # Set up development environment resources using Terraform
 setup-dev-env:

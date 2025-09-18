@@ -1,96 +1,156 @@
-# pubtender
+# PubTender - SEO Analysis Tool
 
-A base ReAct agent built with Google's Agent Development Kit (ADK)
-Agent generated with [`googleCloudPlatform/agent-starter-pack`](https://github.com/GoogleCloudPlatform/agent-starter-pack) version `0.14.1`
+PubTender, Google Agent Development Kit (ADK) kullanarak geliştirilmiş kapsamlı bir SEO analiz aracıdır. Web sitelerini analiz ederek SEO uyumluluğunu kontrol eder, içerik önerilerinde bulunur ve görsel optimizasyonu sağlar.
 
-## Project Structure
+## 🚀 Özellikler
 
-This project is organized as follows:
+- **Web Crawler**: Web sitelerinden HTML içerik çıkarımı
+- **Content Analyzer**: SEO analizi ve anahtar kelime çıkarımı  
+- **Competitor Analysis**: Görsel optimizasyonu ve alt metin önerileri
+- **Real-time Chat**: Analiz sonuçları hakkında sohbet edebilme
+- **Modern UI**: React + TypeScript ile geliştirilmiş kullanıcı dostu arayüz
+
+## 📋 Gereksinimler
+
+- Python 3.9+
+- Node.js 18+
+- Google Cloud Project (ADK için)
+- uv package manager
+
+## 🛠️ Kurulum
+
+### 1. Python Dependencies (Backend)
+```bash
+make install
+```
+
+### 2. Client Dependencies (Frontend)
+```bash
+make install-client
+```
+
+### 3. Environment Variables
+`.env` dosyası oluşturun:
+```env
+APP_NAME=pubtender
+GOOGLE_CLOUD_PROJECT=your-project-id
+GOOGLE_CLOUD_LOCATION=us-central1
+```
+
+## 🏃‍♂️ Çalıştırma
+
+### Tam Stack (Önerilen)
+```bash
+make dev
+```
+Bu komut hem backend (port 8000) hem de frontend (port 3000) servislerini başlatır.
+
+### Sadece Backend
+```bash
+make server
+```
+
+### Sadece Frontend
+```bash
+make client
+```
+
+### Google ADK Playground (Orijinal)
+```bash
+make playground
+```
+
+## 🏗️ Proje Yapısı
 
 ```
 pubtender/
-├── app/                 # Core application code
-│   ├── agent.py         # Main agent logic
-│   ├── agent_engine_app.py # Agent Engine application logic
-│   └── utils/           # Utility functions and helpers
-├── .github/             # CI/CD pipeline configurations for GitHub Actions
-├── deployment/          # Infrastructure and deployment scripts
-├── notebooks/           # Jupyter notebooks for prototyping and evaluation
-├── tests/               # Unit, integration, and load tests
-├── Makefile             # Makefile for common commands
-├── GEMINI.md            # AI-assisted development guide
-└── pyproject.toml       # Project dependencies and configuration
+├── app/                    # Agent definitions (Google ADK)
+│   ├── agent.py           # Root agent
+│   ├── sub_agents/        # Sub-agents
+│   │   ├── html_content_extractor/
+│   │   ├── image_generator/
+│   │   └── content_seo_ruler/
+│   └── utils/             # Utility functions
+├── client/                # React TypeScript Frontend
+│   ├── src/
+│   │   ├── components/    # UI Components
+│   │   ├── hooks/         # Custom hooks
+│   │   ├── types/         # TypeScript definitions
+│   │   └── utils/         # Utility functions
+│   └── package.json
+├── server/                # FastAPI Backend
+│   ├── main.py           # FastAPI server
+│   └── requirements.txt
+└── deployment/           # Terraform configurations
 ```
 
-## Requirements
+## 🔧 API Endpoints
 
-Before you begin, ensure you have:
-- **uv**: Python package manager (used for all dependency management in this project) - [Install](https://docs.astral.sh/uv/getting-started/installation/) ([add packages](https://docs.astral.sh/uv/concepts/dependencies/) with `uv add <package>`)
-- **Google Cloud SDK**: For GCP services - [Install](https://cloud.google.com/sdk/docs/install)
-- **Terraform**: For infrastructure deployment - [Install](https://developer.hashicorp.com/terraform/downloads)
-- **make**: Build automation tool - [Install](https://www.gnu.org/software/make/) (pre-installed on most Unix-based systems)
+### WebSocket
+- `ws://localhost:8000/ws/{user_id}` - Real-time communication
 
+### REST
+- `GET /` - API information
+- `GET /health` - Health check
 
-## Quick Start (Local Testing)
+## 💬 Kullanım
 
-Install required packages and launch the local development environment:
+1. **New Analysis** butonuna tıklayın
+2. Analiz etmek istediğiniz web sitesinin URL'sini girin
+3. Analiz adımlarını takip edin:
+   - Web Crawler: HTML içerik çıkarımı
+   - Content Analyzer: SEO analizi
+   - Competitor Analysis: Görsel optimizasyonu
+4. Analiz tamamlandığında sonuçları görüntüleyin
+5. Chat arayüzü ile agent'a sorular sorun
+
+## 🧪 Test
 
 ```bash
-make install && make playground
+make test
 ```
 
-## Commands
-
-| Command              | Description                                                                                 |
-| -------------------- | ------------------------------------------------------------------------------------------- |
-| `make install`       | Install all required dependencies using uv                                                  |
-| `make playground`    | Launch Streamlit interface for testing agent locally and remotely |
-| `make backend`       | Deploy agent to Agent Engine |
-| `make test`          | Run unit and integration tests                                                              |
-| `make lint`          | Run code quality checks (codespell, ruff, mypy)                                             |
-| `make setup-dev-env` | Set up development environment resources using Terraform                         |
-| `uv run jupyter lab` | Launch Jupyter notebook                                                                     |
-
-For full command options and usage, refer to the [Makefile](Makefile).
-
-
-## Usage
-
-This template follows a "bring your own agent" approach - you focus on your business logic, and the template handles everything else (UI, infrastructure, deployment, monitoring).
-
-1. **Prototype:** Build your Generative AI Agent using the intro notebooks in `notebooks/` for guidance. Use Vertex AI Evaluation to assess performance.
-2. **Integrate:** Import your agent into the app by editing `app/agent.py`.
-3. **Test:** Explore your agent functionality using the Streamlit playground with `make playground`. The playground offers features like chat history, user feedback, and various input types, and automatically reloads your agent on code changes.
-4. **Deploy:** Set up and initiate the CI/CD pipelines, customizing tests as necessary. Refer to the [deployment section](#deployment) for comprehensive instructions. For streamlined infrastructure deployment, simply run `uvx agent-starter-pack setup-cicd`. Check out the [`agent-starter-pack setup-cicd` CLI command](https://googlecloudplatform.github.io/agent-starter-pack/cli/setup_cicd.html). Currently supports GitHub with both Google Cloud Build and GitHub Actions as CI/CD runners.
-5. **Monitor:** Track performance and gather insights using Cloud Logging, Tracing, and the Looker Studio dashboard to iterate on your application.
-
-The project includes a `GEMINI.md` file that provides context for AI tools like Gemini CLI when asking questions about your template.
-
-
-## Deployment
-
-> **Note:** For a streamlined one-command deployment of the entire CI/CD pipeline and infrastructure using Terraform, you can use the [`agent-starter-pack setup-cicd` CLI command](https://googlecloudplatform.github.io/agent-starter-pack/cli/setup_cicd.html). Currently supports GitHub with both Google Cloud Build and GitHub Actions as CI/CD runners.
-
-### Dev Environment
-
-You can test deployment towards a Dev Environment using the following command:
+## 🔍 Code Quality
 
 ```bash
-gcloud config set project <your-dev-project-id>
+make lint
+```
+
+## 🚀 Deployment
+
+### Development Environment
+```bash
+make setup-dev-env
+```
+
+### Production
+```bash
 make backend
 ```
 
+## 🏗️ Architecture
 
-The repository includes a Terraform configuration for the setup of the Dev Google Cloud project.
-See [deployment/README.md](deployment/README.md) for instructions.
+PubTender, Google ADK'nın agent-based architecture'ını kullanır:
 
-### Production Deployment
+- **Root Agent**: Ana koordinatör agent
+- **HTML Content Extractor**: Web sayfalarından içerik çıkarır
+- **Image Generator**: Görsel optimizasyonu ve alt metin üretimi
+- **Content SEO Ruler**: SEO kuralları kontrolü (geliştirme aşamasında)
 
-The repository includes a Terraform configuration for the setup of a production Google Cloud project. Refer to [deployment/README.md](deployment/README.md) for detailed instructions on how to deploy the infrastructure and application.
+Frontend, WebSocket üzerinden real-time olarak backend ile iletişim kurar ve analiz adımlarını takip eder.
 
+## 🤝 Contributing
 
-## Monitoring and Observability
-> You can use [this Looker Studio dashboard](https://lookerstudio.google.com/reporting/46b35167-b38b-4e44-bd37-701ef4307418/page/tEnnC
-) template for visualizing events being logged in BigQuery. See the "Setup Instructions" tab to getting started.
+1. Fork the project
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
-The application uses OpenTelemetry for comprehensive observability with all events being sent to Google Cloud Trace and Logging for monitoring and to BigQuery for long term storage.
+## 📝 License
+
+This project is licensed under the Apache License 2.0 - see the LICENSE file for details.
+
+## 🆘 Support
+
+Issues ve feature requests için GitHub Issues kullanın.

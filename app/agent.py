@@ -15,13 +15,12 @@
 """SEO Tracker Agent analyzes web pages for SEO optimization and content improvement."""
 
 from google.adk.agents import LlmAgent
-from google.adk.tools.agent_tool import AgentTool
 
 from . import prompt
-from .sub_agents.content_seo_ruler import content_seo_ruler_agent
-from .sub_agents.seo_content_recreator import seo_content_recreator_agent
-from .sub_agents.html_content_extractor import html_content_extractor_agent
-from .sub_agents.image_generator import image_generator_agent
+from .sub_agents.seo_content_evaluator_agent import seo_content_evaluator_agent
+from app.sub_agents.edit_content_agent import edit_content_agent
+
+from app.tools.memory import memorize
 
 MODEL = "gemini-2.5-pro"
 
@@ -31,15 +30,19 @@ seo_tracker = LlmAgent(
     description=(
         "SEO Tracker analyzes web pages to extract the most commonly used keywords "
         "and checks their compliance with SEO rules. It can also recreate content "
-        "in a way that is suitable for SEO optimization."
+
+        "in a way that is suitable for SEO optimization. "
+        "When a user shares a URL, the request is redirected to the "
+        "seo_content_evaluator_agent for keyword and compliance analysis. "
+        "If the user wants to make edits or adjustments based on the evaluation, "
+        "the request is redirected to the edit_content_agent."
     ),
-    instruction=prompt.SEO_TRACKER_PROMPT,
-    tools=[
-        AgentTool(agent=content_seo_ruler_agent),
-        AgentTool(agent=seo_content_recreator_agent),
-        AgentTool(agent=html_content_extractor_agent),
-        AgentTool(agent=image_generator_agent),
+    instruction=prompt.ROOT_AGENT_PROMPT,
+    sub_agents=[
+        seo_content_evaluator_agent,
+        edit_content_agent
     ],
+    tools=[memorize]
 )
 
 root_agent = seo_tracker
