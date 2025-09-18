@@ -16,7 +16,6 @@
     "antd": "^5.27.4",
     "clsx": "^2.1.1",
     "fs": "^0.0.1-security",
-    "jsonic": "^2.16.0",
     "lucide-react": "^0.441.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
