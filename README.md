@@ -1,23 +1,23 @@
 # PubTender - SEO Analysis Tool
 
-PubTender, Google Agent Development Kit (ADK) kullanarak geliştirilmiş kapsamlı bir SEO analiz aracıdır. Web sitelerini analiz ederek SEO uyumluluğunu kontrol eder, içerik önerilerinde bulunur ve görsel optimizasyonu sağlar.
+PubTender is a comprehensive SEO analysis tool developed using Google Agent Development Kit (ADK). It analyzes websites to check SEO compliance, provides content recommendations, and offers visual optimization.
 
-## 🚀 Özellikler
+## 🚀 Features
 
-- **Web Crawler**: Web sitelerinden HTML içerik çıkarımı
-- **Content Analyzer**: SEO analizi ve anahtar kelime çıkarımı  
-- **Competitor Analysis**: Görsel optimizasyonu ve alt metin önerileri
-- **Real-time Chat**: Analiz sonuçları hakkında sohbet edebilme
-- **Modern UI**: React + TypeScript ile geliştirilmiş kullanıcı dostu arayüz
+- **Web Crawler**: HTML content extraction from websites
+- **Content Analyzer**: SEO analysis and keyword extraction  
+- **Competitor Analysis**: Visual optimization and alt text suggestions
+- **Real-time Chat**: Interactive chat about analysis results
+- **Modern UI**: User-friendly interface built with React + TypeScript
 
-## 📋 Gereksinimler
+## 📋 Requirements
 
 - Python 3.9+
 - Node.js 18+
-- Google Cloud Project (ADK için)
+- Google Cloud Project (for ADK)
 - uv package manager
 
-## 🛠️ Kurulum
+## 🛠️ Installation
 
 ### 1. Python Dependencies (Backend)
 ```bash
@@ -30,37 +30,32 @@ make install-client
 ```
 
 ### 3. Environment Variables
-`.env` dosyası oluşturun:
+Create a `.env` file:
 ```env
 APP_NAME=pubtender
 GOOGLE_CLOUD_PROJECT=your-project-id
 GOOGLE_CLOUD_LOCATION=us-central1
 ```
 
-## 🏃‍♂️ Çalıştırma
+## 🏃‍♂️ Running
 
-### Tam Stack (Önerilen)
+### Full Stack (Recommended)
 ```bash
 make dev
 ```
-Bu komut hem backend (port 8000) hem de frontend (port 3000) servislerini başlatır.
+This command starts both backend (port 8000) and frontend (port 3000) services.
 
-### Sadece Backend
-```bash
-make server
-```
-
-### Sadece Frontend
-```bash
-make client
-```
-
-### Google ADK Playground (Orijinal)
+### Backend Only
 ```bash
 make playground
 ```
 
-## 🏗️ Proje Yapısı
+### Frontend Only
+```bash
+cd client & npm run dev
+```
+
+## 🏗️ Project Structure
 
 ```
 pubtender/
@@ -78,9 +73,6 @@ pubtender/
 │   │   ├── types/         # TypeScript definitions
 │   │   └── utils/         # Utility functions
 │   └── package.json
-├── server/                # FastAPI Backend
-│   ├── main.py           # FastAPI server
-│   └── requirements.txt
 └── deployment/           # Terraform configurations
 ```
 
@@ -93,18 +85,18 @@ pubtender/
 - `GET /` - API information
 - `GET /health` - Health check
 
-## 💬 Kullanım
+## 💬 Usage
 
-1. **New Analysis** butonuna tıklayın
-2. Analiz etmek istediğiniz web sitesinin URL'sini girin
-3. Analiz adımlarını takip edin:
-   - Web Crawler: HTML içerik çıkarımı
-   - Content Analyzer: SEO analizi
-   - Competitor Analysis: Görsel optimizasyonu
-4. Analiz tamamlandığında sonuçları görüntüleyin
-5. Chat arayüzü ile agent'a sorular sorun
+1. Click the **New Analysis** button
+2. Enter the URL of the website you want to analyze
+3. Follow the analysis steps:
+   - Web Crawler: HTML content extraction
+   - Content Analyzer: SEO analysis
+   - Competitor Analysis: Visual optimization
+4. View the results when analysis is complete
+5. Ask questions to the agent through the chat interface
 
-## 🧪 Test
+## 🧪 Testing
 
 ```bash
 make test
@@ -130,14 +122,14 @@ make backend
 
 ## 🏗️ Architecture
 
-PubTender, Google ADK'nın agent-based architecture'ını kullanır:
+PubTender uses Google ADK's agent-based architecture:
 
-- **Root Agent**: Ana koordinatör agent
-- **HTML Content Extractor**: Web sayfalarından içerik çıkarır
-- **Image Generator**: Görsel optimizasyonu ve alt metin üretimi
-- **Content SEO Ruler**: SEO kuralları kontrolü (geliştirme aşamasında)
+- **Root Agent**: Main coordinator agent
+- **HTML Content Extractor**: Extracts content from web pages
+- **Image Generator**: Visual optimization and alt text generation
+- **Content SEO Ruler**: SEO rules checking (in development)
 
-Frontend, WebSocket üzerinden real-time olarak backend ile iletişim kurar ve analiz adımlarını takip eder.
+The frontend communicates with the backend in real-time via WebSocket and tracks analysis steps.
 
 ## 🤝 Contributing
 
@@ -153,4 +145,4 @@ This project is licensed under the Apache License 2.0 - see the LICENSE file for
 
 ## 🆘 Support
 
-Issues ve feature requests için GitHub Issues kullanın.
+Use GitHub Issues for issues and feature requests.
