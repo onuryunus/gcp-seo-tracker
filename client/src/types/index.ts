@@ -5,7 +5,26 @@ export interface Analysis {
   status: 'pending' | 'running' | 'completed' | 'error';
   createdAt: Date;
   steps: AnalysisStep[];
-  results?: AnalysisResults;
+  result?: AnalysisContent;
+}
+
+export interface AnalysisContent {
+  status: string;
+  url: string;
+  seo_score: number;
+  total_checks: number;
+  passed_checks: number;
+  issues: string[];
+  recommendations: string[];
+  keywords: Keyword[];
+  detailed_report: string;
+  page_info: any;
+}
+
+export interface Keyword {
+  word: string;
+  count: number;
+  percentage: number;
 }
 
 export interface AnalysisStep {
@@ -45,9 +64,24 @@ export interface SeoAnalysisResult {
   passed_checks: number;
   issues: string[];
   recommendations: string[];
-  keywords: string[];
+  keywords: KeywordAnalysisResult[];
   detailed_report: string;
   page_info: any;
+  images: ImageAnalysisResult[];
+}
+
+export interface KeywordAnalysisResult {
+  keyword: string;
+  count: number;
+  density: number;
+  type: string;
+}
+
+export interface ImageAnalysisResult {
+  image_link: string;
+  alt_text: string;
+  alt_text_suggestion: string;
+  keywords: string[];
 }
 
 export interface ImageGenerationResult {
