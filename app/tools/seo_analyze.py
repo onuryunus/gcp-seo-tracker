@@ -66,8 +66,11 @@ async def analyze_webpage_seo(
             }
         }
 
-        print("SEO JSON IS SAVED: ", json.dumps(result))
-        memorize(tool_context=tool_context, key=r"seo_analyze_json_result", value=json.dumps(result))
+        safe_result = sanitize_detailed_report(result)
+        print(safe_result["detailed_report"])  # no double quotes inside
+
+        print("SEO JSON IS SAVED: ", json.dumps(safe_result))
+        memorize(tool_context=tool_context, key=r"seo_analyze_json_result", value=json.dumps(safe_result, ensure_ascii=False))
 
         return result
 
@@ -77,6 +80,17 @@ async def analyze_webpage_seo(
             "message": f"Error during SEO analysis: {str(e)}",
             "url": url
         }
+
+def sanitize_detailed_report(result: dict) -> dict:
+    """
+    Return a copy of the result dict where all double quotes in detailed_report
+    are replaced with single quotes. Leaves other fields untouched.
+    """
+    sanitized = dict(result)  # shallow copy
+    report = sanitized.get("detailed_report")
+    if isinstance(report, str):
+        sanitized["detailed_report"] = report.replace('"', "'")
+    return sanitized
 
 
 async def extract_page_keywords(
