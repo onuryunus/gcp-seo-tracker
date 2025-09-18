@@ -3,6 +3,6 @@
 
 """HTML Content Extractor sub-agent module."""
 
-from .agent import html_content_extractor_agent
+from .agent import edit_content_agent
 
-__all__ = ['html_content_extractor_agent']
+__all__ = ['edit_content_agent']
